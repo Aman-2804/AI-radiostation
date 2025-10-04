@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AI Radiostation — Podcast Generator</title>
+    <style>
+      body { font-family: system-ui, -apple-system, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+      textarea { width: 100%; min-height: 140px; }
+      button { padding: 8px 12px; margin-top: 8px; }
+      audio { display: block; margin-top: 12px; }
+    </style>
+  </head>
+  <body>
+    <h1>AI Radiostation</h1>
+    <p>Enter a short prompt or transcript. The backend will generate a short transcript (if needed) and TTS audio.</p>
+    <textarea id="prompt" placeholder="Write a short podcast clip prompt...">Generate a short transcript around 100 words that reads like it was clipped from a podcast by excited herpetologists. The hosts names are Dr. Anya and Liam.</textarea>
+    <br />
+    <button id="generate">Generate audio</button>
+
+    <div id="result"></div>
+
+    <script>
+      document.getElementById('generate').addEventListener('click', async () => {
+        const text = document.getElementById('prompt').value;
+        document.getElementById('result').innerText = 'Generating...';
+        try {
+          const form = new FormData();
+          form.append('text', text);
+          const res = await fetch('/generate', { method: 'POST', body: form });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.detail || 'Generation failed');
+          const audioUrl = body.audio_url;
+          document.getElementById('result').innerHTML = `<audio controls src="${audioUrl}"></audio>`;
+        } catch (err) {
+          document.getElementById('result').innerText = 'Error: ' + err.message;
+        }
+      });
+    </script>
+  </body>
+</html>

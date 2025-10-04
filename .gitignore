@@ -1,0 +1,26 @@
+__pycache__/
+generated/
+*.pyc
+.env
+# secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node (if you add a dashboard later)
+node_modules/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Build/runtime
+storage/
+*.log
