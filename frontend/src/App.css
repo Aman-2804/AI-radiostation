@@ -296,7 +296,6 @@ body {
   transform: translateY(0);
 }
 
-/* Responsive Design for Audio Player */
 @media (max-width: 768px) {
   .audio-player {
     padding: 1.5rem;
@@ -338,7 +337,6 @@ body {
   }
 }
 
-/* Enhanced animations for better UX */
 .audio-player {
   animation: slideUp 0.6s ease-out;
 }
@@ -354,7 +352,6 @@ body {
   }
 }
 
-/* Audio player loading state */
 .audio-element:not([src]) {
   opacity: 0.5;
   pointer-events: none;
