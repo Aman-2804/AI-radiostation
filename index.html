@@ -5,17 +5,9 @@
   <title>Local Radio Player</title>
 </head>
 <body>
-  <h1>Local Radio Player</h1>
+  <h1 id="title">Local Radio Player</h1>
 
-  <select id="stationSelect">
-    <option value="">-- Select a station --</option>
-    <option value="100">Station 1</option>
-    <option value="101">Station 2</option>
-    <option value="102">Station 3</option>
-  </select>
-
-  <button id="playBtn">Play</button>
-  <button id="stopBtn">Stop</button>
+  <select id="stationSelect"></select>
 
   <p id="stationName"></p>
 
@@ -23,15 +15,37 @@
 
   <script>
     const select = document.getElementById('stationSelect');
-    const playBtn = document.getElementById('playBtn');
-    const stopBtn = document.getElementById('stopBtn');
     const player = document.getElementById('audioPlayer');
     const nameDisplay = document.getElementById('stationName');
+    const title = document.getElementById('title');
 
-    select.addEventListener('change', async () => {
-      const frequency = select.value;
+    // --- Generate station options dynamically ---
+    const startFreq = 87.5;
+    const endFreq = 107.9;
+    const step = 0.2;
+
+    for (let freq = startFreq; freq <= endFreq + 1e-6; freq += step) {
+      const formatted = freq.toFixed(1); // for display, e.g. "87.5"
+      const intForm = formatted.replace('.', ''); // for URL and backend, e.g. "875"
+      const opt = document.createElement('option');
+      opt.value = intForm;
+      opt.textContent = `${formatted} FM`;
+      select.appendChild(opt);
+    }
+
+    async function tuneTo(frequency) {
+      player.pause();
+      player.src = '';
       nameDisplay.textContent = '';
-      if (!frequency) return;
+
+      if (!frequency) {
+        title.textContent = 'Local Radio Player';
+        return;
+      }
+
+      // Convert integer back to display form, e.g. "875" -> "87.5"
+      const displayFreq = (parseInt(frequency) / 10).toFixed(1);
+      title.textContent = `${displayFreq} FM`;
 
       try {
         const res = await fetch('/getname', {
@@ -44,30 +58,29 @@
 
         if (data.name) {
           nameDisplay.textContent = `Now playing: ${data.name}`;
+          player.src = `http://localhost:8000/${frequency}.mp3`;
+          await player.play();
         } else if (data.result === "false") {
           nameDisplay.textContent = 'No station found at this frequency.';
+          player.pause();
+          player.src = '';
         } else {
           nameDisplay.textContent = 'Unexpected response.';
         }
       } catch (err) {
         nameDisplay.textContent = 'Error fetching station name.';
         console.error(err);
+        player.pause();
+        player.src = '';
       }
-    });
+    }
 
-    playBtn.addEventListener('click', () => {
-      const frequency = select.value;
-      if (!frequency) {
-        alert('Please select a station first.');
-        return;
-      }
-      player.src = `http://localhost:8000/${frequency}.mp3`;
-      player.play();
-    });
+    select.addEventListener('change', () => tuneTo(select.value));
 
-    stopBtn.addEventListener('click', () => {
-      player.pause();
-      player.src = '';
+    window.addEventListener('DOMContentLoaded', () => {
+      const defaultFrequency = '875'; // corresponds to 87.5 FM
+      select.value = defaultFrequency;
+      tuneTo(defaultFrequency);
     });
   </script>
 </body>

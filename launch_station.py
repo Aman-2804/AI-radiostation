@@ -17,58 +17,82 @@ HOST, PORT = "localhost", 8000
 PASS = "hackme"
 
 def fetch_chunk(param, segment_idx, status_file):
-    try:
-        transcript = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=f"""Generate a short transcript around 50 words for a podcast based on this description:\n\n
-                        {param}\n
-                        The hosts names are Dr. Aman and Liam.""").text
-        response = client.models.generate_content(
-            model="gemini-2.5-flash-preview-tts",
-            contents=transcript,
-            config=types.GenerateContentConfig(
-                response_modalities=["AUDIO"],
-                speech_config=types.SpeechConfig(
-                    multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
-                        speaker_voice_configs=[
-                        types.SpeakerVoiceConfig(
-                            speaker='Dr. Aman',
-                            voice_config=types.VoiceConfig(
-                                prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                                    voice_name='Kore',
+    if True:
+        try:
+            transcript = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=f"""Generate a short transcript around 50 words for a podcast based on this description:\n\n
+                            {param}\n
+                            The hosts names are Dr. Aman and Liam.""").text
+            print(transcript)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-preview-tts",
+                contents=transcript,
+                config=types.GenerateContentConfig(
+                    response_modalities=["AUDIO"],
+                    speech_config=types.SpeechConfig(
+                        multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
+                            speaker_voice_configs=[
+                            types.SpeakerVoiceConfig(
+                                speaker='Dr. Aman',
+                                voice_config=types.VoiceConfig(
+                                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                                        voice_name='Kore',
+                                    )
                                 )
-                            )
-                        ),
-                        types.SpeakerVoiceConfig(
-                            speaker='Liam',
-                            voice_config=types.VoiceConfig(
-                                prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                                    voice_name='Puck',
+                            ),
+                            types.SpeakerVoiceConfig(
+                                speaker='Liam',
+                                voice_config=types.VoiceConfig(
+                                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                                        voice_name='Puck',
+                                    )
                                 )
-                            )
-                        ),
-                        ]
+                            ),
+                            ]
+                        )
                     )
                 )
             )
-        )
-        print(transcript)
-        data = response.candidates[0].content.parts[0].inline_data.data
-        initial_status = {
-            'status': 'success',
-            'message': 'it worked'
-        }
-        return data
-    except Exception as e:
-        initial_status = {
-            'status': 'failed',
-            'message': f'Failed: {str(e)}'
-        }
-        print(f'Error: {e}')
-    finally:
-        if segment_idx == 0:
-            with open(status_file, 'w') as f:
-                json.dump(initial_status, f)
+            print("tts done")
+            data = response.candidates[0].content.parts[0].inline_data.data
+            initial_status = {
+                'status': 'success',
+                'message': 'it worked'
+            }
+            return data
+        except Exception as e:
+            initial_status = {
+                'status': 'failed',
+                'message': f'Failed: {str(e)}'
+            }
+            print(f'Error: {e}')
+            with open(f"music/medium.pcm", "rb") as f:
+                data = f.read()
+            return data
+        finally:
+            if segment_idx == 0:
+                with open(status_file, 'w') as f:
+                    json.dump(initial_status, f)
+    else:
+        try:
+            with open(f"music/medium.pcm", "rb") as f:
+                data = f.read()
+            initial_status = {
+                'status': 'success',
+                'message': 'it worked'
+            }
+            return data
+        except Exception as e:
+            initial_status = {
+                'status': 'failed',
+                'message': f'Failed: {str(e)}'
+            }
+            print(f'Error: {e}')
+        finally:
+            if segment_idx == 0:
+                with open(status_file, 'w') as f:
+                    json.dump(initial_status, f)
 
 def pcm_to_mp3_bytes(pcm_bytes):
     ffmpeg_cmd = [
@@ -155,6 +179,7 @@ def main():
         )
         s.sendall(hdr.encode())
 
+        
         segment_idx = 0
         chunk = fetch_chunk(prompt, segment_idx, status_file)
         while True:
