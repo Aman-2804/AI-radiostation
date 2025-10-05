@@ -1,0 +1,213 @@
+
+:root {
+  --primary: #7C3AED;
+  --primary-light: #9F67FF;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --background: #F3F4F6;
+  --card: #FFFFFF;
+  --text: #1F2937;
+  --text-light: #6B7280;
+  --border: #E5E7EB;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.app-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.app-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.form-section {
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-textarea,
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: var(--card);
+  color: var(--text);
+}
+
+.form-textarea:focus,
+.form-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  outline: none;
+}
+
+.segment-mixer {
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  width: 100%;
+}
+
+.segment-bar {
+  height: 100px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.segment-section {
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+}
+
+.cold_open { background: linear-gradient(135deg, #34D399, #10B981); }
+.topic { background: linear-gradient(135deg, #60A5FA, #3B82F6); }
+.banter { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+.ad { background: linear-gradient(135deg, #F87171, #EF4444); }
+.outro { background: linear-gradient(135deg, #A78BFA, #8B5CF6); }
+
+.segment-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  justify-content: center;
+}
+
+.generate-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+}
+
+.generate-button:hover {
+  background: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.generate-button:disabled {
+  background: var(--text-light);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.audio-player {
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.audio-player h3 {
+  margin-top: 0;
+  color: var(--text);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.audio-element {
+  width: 100%;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+}
+
+.download-button {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.download-button:hover {
+  filter: brightness(110%);
+  transform: translateY(-1px);
+}
+
+.error-message {
+  background: #FEE2E2;
+  color: var(--danger);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  border: 1px solid #FCA5A5;
+}
+
+.instructions {
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
