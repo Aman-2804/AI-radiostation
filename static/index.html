@@ -13,25 +13,75 @@
   </head>
   <body>
     <h1>AI Radiostation</h1>
-    <p>Enter a short prompt or transcript. The backend will generate a short transcript (if needed) and TTS audio.</p>
-    <textarea id="prompt" placeholder="Write a short podcast clip prompt...">Generate a short transcript around 100 words that reads like it was clipped from a podcast by excited herpetologists. The hosts names are Dr. Anya and Liam.</textarea>
+    <p>Fill the fields below to generate a mixed episode (MP3) from topics and host personas.</p>
+
+    <h3>Topics</h3>
+    <p>One topic per line:</p>
+    <textarea id="topics" placeholder="AI ethics\nIndie film picks">AI ethics
+Indie film picks</textarea>
+
+    <h3>Hosts</h3>
+    <p>One host per line in the format: <code>Name|Persona</code> (e.g. Maya|sarcastic film geek)</p>
+    <textarea id="hosts" placeholder="Maya|sarcastic film geek\nRowan|calm tech nerd">Maya|sarcastic film geek
+Rowan|calm tech nerd</textarea>
+
+    <h3>Segment Durations (seconds)</h3>
+    <div>
+      <label>Topic: <input type="number" id="dur_topic" value="120" /></label>
+      <label>Banter: <input type="number" id="dur_banter" value="30" /></label>
+      <label>Cold open: <input type="number" id="dur_cold" value="10" /></label>
+      <label>Ad: <input type="number" id="dur_ad" value="20" /></label>
+      <label>Outro: <input type="number" id="dur_outro" value="20" /></label>
+    </div>
+
+    <h3>Station Style</h3>
+    <input id="style" placeholder="e.g. chill night radio" value="chill night radio" />
+
     <br />
-    <button id="generate">Generate audio</button>
+    <button id="create">Create Episode</button>
 
     <div id="result"></div>
 
     <script>
-      document.getElementById('generate').addEventListener('click', async () => {
-        const text = document.getElementById('prompt').value;
-        document.getElementById('result').innerText = 'Generating...';
+      function parseHosts(text) {
+        return text.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
+          const parts = line.split('|');
+          return { name: parts[0].trim(), persona: (parts[1]||'').trim() };
+        });
+      }
+
+      document.getElementById('create').addEventListener('click', async () => {
+        const topicsText = document.getElementById('topics').value;
+        const hostsText = document.getElementById('hosts').value;
+        const topics = topicsText.split('\n').map(s => s.trim()).filter(Boolean);
+        const hosts = parseHosts(hostsText);
+        const durations = {
+          topic: parseInt(document.getElementById('dur_topic').value, 10) || 120,
+          banter: parseInt(document.getElementById('dur_banter').value, 10) || 30,
+          cold_open: parseInt(document.getElementById('dur_cold').value, 10) || 10,
+          ad: parseInt(document.getElementById('dur_ad').value, 10) || 20,
+          outro: parseInt(document.getElementById('dur_outro').value, 10) || 20,
+        };
+        const style = document.getElementById('style').value || '';
+
+        if (!topics.length || !hosts.length) {
+          document.getElementById('result').innerText = 'Please enter at least one topic and one host.';
+          return;
+        }
+
+        const payload = { topics, hosts, durations, style };
+        document.getElementById('result').innerText = 'Generating episode — this may take a minute...';
+
         try {
-          const form = new FormData();
-          form.append('text', text);
-          const res = await fetch('/generate', { method: 'POST', body: form });
+          const res = await fetch('/create_episode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
           const body = await res.json();
-          if (!res.ok) throw new Error(body.detail || 'Generation failed');
+          if (!res.ok) throw new Error(body.detail || JSON.stringify(body));
           const audioUrl = body.audio_url;
-          document.getElementById('result').innerHTML = `<audio controls src="${audioUrl}"></audio>`;
+          document.getElementById('result').innerHTML = `Episode ready: <a href="${audioUrl}" target="_blank">Download MP3</a><br/><audio controls src="${audioUrl}"></audio>`;
         } catch (err) {
           document.getElementById('result').innerText = 'Error: ' + err.message;
         }
