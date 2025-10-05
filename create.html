@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Frontend</title>
+</head>
+<body>
+    <h1>Launch Backend Process</h1>
+    
+    <form id="launchForm">
+        <label for="frequency">Frequency:</label>
+        <input type="text" id="frequency" name="frequency" required>
+        <label for="name">Station name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="prompt">Prompt:</label>
+        <input type="text" id="prompt" name="prompt" required>
+        <button type="submit">Launch</button>
+    </form>
+    
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('launchForm');
+        const resultDiv = document.getElementById('result');
+        const paramInput = document.getElementById('frequency');
+        const BASE_URL = 'http://localhost:5000';  // Adjust if Flask runs elsewhere
+
+        // Prefill input from URL param if provided
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlParam = urlParams.get('frequency');
+        if (urlParam) {
+            paramInput.value = urlParam;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const frequency = paramInput.value;
+            const stationname = document.getElementById('name').value;
+            const prompt = document.getElementById('prompt').value;
+            
+            try {
+                // POST to /launch
+                const launchResponse = await fetch(`${BASE_URL}/launch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        frequency: frequency,
+                        stationname: stationname,
+                        param: prompt
+                    })
+                });
+                const launchData = await launchResponse.json();
+                
+                if (launchResponse.ok) {
+                    resultDiv.innerHTML = `<p>Launch initiated! ID: ${launchData.launch_id}</p><p>Polling for status...</p>`;
+                    pollStatus(launchData.launch_id);
+                } else {
+                    resultDiv.innerHTML = `<p>Error: ${launchData.message || 'Launch failed'}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Network error: ${error.message}</p>`;
+            }
+        });
+
+        function pollStatus(launchId) {
+            const interval = setInterval(async () => {
+                try {
+                    const statusResponse = await fetch(`${BASE_URL}/status/${launchId}`);
+                    const statusData = await statusResponse.json();
+                    
+                    resultDiv.innerHTML += `<p>Status: ${statusData.status} - ${statusData.message || ''}</p>`;
+                    
+                    if (statusData.status !== 'pending') {
+                        clearInterval(interval);
+                        if (statusData.status === 'success') {
+                            resultDiv.innerHTML += '<p>Ready to go!</p>';
+                        } else {
+                            resultDiv.innerHTML += '<p>Launch failed - check logs.</p>';
+                        }
+                    }
+                } catch (error) {
+                    clearInterval(interval);
+                    resultDiv.innerHTML += `<p>Polling error: ${error.message}</p>`;
+                }
+            }, 2000);  // Poll every 2 seconds
+        }
+    </script>
+</body>
+</html>

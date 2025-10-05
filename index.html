@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Local Radio Player</title>
+</head>
+<body>
+  <h1>Local Radio Player</h1>
+
+  <select id="stationSelect">
+    <option value="">-- Select a station --</option>
+    <option value="100">Station 1</option>
+    <option value="101">Station 2</option>
+    <option value="102">Station 3</option>
+  </select>
+
+  <button id="playBtn">Play</button>
+  <button id="stopBtn">Stop</button>
+
+  <p id="stationName"></p>
+
+  <audio id="audioPlayer" controls></audio>
+
+  <script>
+    const select = document.getElementById('stationSelect');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const player = document.getElementById('audioPlayer');
+    const nameDisplay = document.getElementById('stationName');
+
+    select.addEventListener('change', async () => {
+      const frequency = select.value;
+      nameDisplay.textContent = '';
+      if (!frequency) return;
+
+      try {
+        const res = await fetch('/getname', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ frequency })
+        });
+
+        const data = await res.json();
+
+        if (data.name) {
+          nameDisplay.textContent = `Now playing: ${data.name}`;
+        } else if (data.result === "false") {
+          nameDisplay.textContent = 'No station found at this frequency.';
+        } else {
+          nameDisplay.textContent = 'Unexpected response.';
+        }
+      } catch (err) {
+        nameDisplay.textContent = 'Error fetching station name.';
+        console.error(err);
+      }
+    });
+
+    playBtn.addEventListener('click', () => {
+      const frequency = select.value;
+      if (!frequency) {
+        alert('Please select a station first.');
+        return;
+      }
+      player.src = `http://localhost:8000/${frequency}.mp3`;
+      player.play();
+    });
+
+    stopBtn.addEventListener('click', () => {
+      player.pause();
+      player.src = '';
+    });
+  </script>
+</body>
+</html>
