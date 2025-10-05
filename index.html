@@ -3,6 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <title>Local Radio Player</title>
+  <style>
+    /* --- BRUTALIST STYLE --- */
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Courier New", monospace;
+      background: #f2f2f2;
+      color: #000;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-top: 40px;
+      font-weight: 900;
+      text-transform: uppercase;
+      border: 5px solid black;
+      display: inline-block;
+      padding: 20px 40px;
+      background: white;
+      box-shadow: 6px 6px 0px black;
+    }
+
+    select {
+      margin-top: 60px;
+      font-size: 1.5em;
+      font-weight: bold;
+      border: 3px solid black;
+      background: yellow;
+      padding: 10px 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    select:hover {
+      background: lime;
+    }
+
+    p {
+      margin-top: 40px;
+      font-size: 1.2em;
+      font-weight: bold;
+      border-top: 3px dashed black;
+      padding-top: 20px;
+      display: inline-block;
+      background: #fff;
+      padding: 10px 20px;
+    }
+
+    audio {
+      margin-top: 40px;
+      width: 80%;
+      outline: 4px solid black;
+      background: white;
+      box-shadow: 5px 5px 0px black;
+    }
+
+    /* Rough hover states */
+    audio:hover, select:hover, h1:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 8px 8px 0px black;
+      transition: all 0.1s ease-in;
+    }
+
+    /* Make the layout look intentionally grid-like */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+      gap: 30px;
+    }
+  </style>
 </head>
 <body>
   <h1 id="title">Local Radio Player</h1>
@@ -20,13 +94,13 @@
     const title = document.getElementById('title');
 
     // --- Generate station options dynamically ---
-    const startFreq = 87.5;
-    const endFreq = 107.9;
+    const startFreq = 87.9;
+    const endFreq = 107.7;
     const step = 0.2;
 
     for (let freq = startFreq; freq <= endFreq + 1e-6; freq += step) {
-      const formatted = freq.toFixed(1); // for display, e.g. "87.5"
-      const intForm = formatted.replace('.', ''); // for URL and backend, e.g. "875"
+      const formatted = freq.toFixed(1); // e.g. "87.5"
+      const intForm = formatted.replace('.', ''); // e.g. "875"
       const opt = document.createElement('option');
       opt.value = intForm;
       opt.textContent = `${formatted} FM`;
@@ -43,9 +117,9 @@
         return;
       }
 
-      // Convert integer back to display form, e.g. "875" -> "87.5"
       const displayFreq = (parseInt(frequency) / 10).toFixed(1);
-      title.textContent = `${displayFreq} FM`;
+      //title.textContent = `${displayFreq} FM`;
+      title.textContent = "99stations";
 
       try {
         const res = await fetch('/getname', {
