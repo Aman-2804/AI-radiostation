@@ -87,8 +87,6 @@ function App() {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
-  //12 minutes in seconds
-  const totalTime = 12 * 60;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -198,8 +196,7 @@ function App() {
                 >
                   <div className="segment-label">
                     {type.replace('_', ' ')}<br />
-                    {percentage.toFixed(1)}%<br />
-                    {Math.round((percentage / 100) * totalTime)}s
+                    {percentage.toFixed(1)}%
                     {lockedSegments.has(type) && <span className="lock-indicator">🔒</span>}
                   </div>
                   <div className="drag-handle"></div>
@@ -227,9 +224,11 @@ function App() {
         {audioUrl && (
           <div className="audio-player">
             <h3>Generated Episode</h3>
-            <audio controls src={audioUrl} className="audio-element">
-              Your browser does not support the audio element.
-            </audio>
+            <div className="audio-controls-wrapper">
+              <audio controls src={audioUrl} className="audio-element">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
             <button
               className="download-button"
               onClick={() => {

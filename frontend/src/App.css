@@ -157,42 +157,216 @@ body {
 }
 
 .audio-player {
-  background: var(--card);
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-top: 2rem;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
+  background: linear-gradient(145deg, #1a1b23 0%, #2d2e3f 100%);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.audio-player::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.6), transparent);
 }
 
 .audio-player h3 {
-  margin-top: 0;
-  color: var(--text);
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
+  margin: 0 0 1.5rem 0;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.audio-player h3::before {
+  content: '🎵';
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.audio-controls-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .audio-element {
   width: 100%;
-  margin: 1rem 0;
-  border-radius: 0.5rem;
+  height: 60px;
+  border-radius: 0.75rem;
+  background: transparent;
+  outline: none;
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.audio-element::-webkit-media-controls-panel {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+}
+
+.audio-element::-webkit-media-controls-play-button,
+.audio-element::-webkit-media-controls-pause-button {
+  background-color: var(--primary);
+  border-radius: 50%;
+  margin: 0 0.5rem;
+}
+
+.audio-element::-webkit-media-controls-timeline {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  margin: 0 1rem;
+}
+
+.audio-element::-webkit-media-controls-current-time-display,
+.audio-element::-webkit-media-controls-time-remaining-display {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .download-button {
-  background: var(--success);
+  background: linear-gradient(135deg, var(--success) 0%, #0d9488 100%);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  padding: 0.875rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1.5rem auto 0;
+  min-width: 160px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.download-button::before {
+  content: '⬇️';
+  font-size: 1rem;
+}
+
+.download-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.download-button:hover::after {
+  left: 100%;
 }
 
 .download-button:hover {
-  filter: brightness(110%);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #0d9488 0%, var(--success) 100%);
+}
+
+.download-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design for Audio Player */
+@media (max-width: 768px) {
+  .audio-player {
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 1rem;
+  }
+  
+  .audio-player h3 {
+    font-size: 1.25rem;
+  }
+  
+  .audio-controls-wrapper {
+    padding: 1rem;
+  }
+  
+  .audio-element {
+    height: 50px;
+  }
+  
+  .download-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .audio-player {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  
+  .audio-player h3 {
+    font-size: 1.1rem;
+  }
+  
+  .download-button {
+    min-width: 140px;
+    padding: 0.625rem 1.25rem;
+  }
+}
+
+/* Enhanced animations for better UX */
+.audio-player {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Audio player loading state */
+.audio-element:not([src]) {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.audio-element[src] {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .error-message {
