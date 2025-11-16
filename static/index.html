@@ -5,35 +5,641 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>AI Radiostation — Podcast Generator</title>
     <style>
-      body { font-family: system-ui, -apple-system, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
-      textarea { width: 100%; min-height: 140px; }
-      button { padding: 8px 12px; margin-top: 8px; }
-      audio { display: block; margin-top: 12px; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary: #6366f1;
+        --primary-hover: #4f46e5;
+        --secondary: #8b5cf6;
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --surface-hover: #334155;
+        --border: #334155;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --success: #10b981;
+        --error: #ef4444;
+        --warning: #f59e0b;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        background: linear-gradient(135deg, var(--bg) 0%, #1e293b 100%);
+        color: var(--text);
+        line-height: 1.6;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+      }
+
+      .subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+      }
+
+      .section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+      }
+
+      h3 {
+        font-size: 1.25rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+      }
+
+      .description {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+      }
+
+      label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+
+      textarea,
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+      }
+
+      textarea:focus,
+      input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+
+      button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      button:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .flex {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .card {
+        flex: 1;
+        min-width: 280px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+
+      .card textarea {
+        margin-top: 0.5rem;
+        min-height: 100px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        margin-left: 1rem;
+        color: var(--text-muted);
+      }
+
+      .status.loading {
+        color: var(--warning);
+      }
+
+      .status.success {
+        color: var(--success);
+        border-color: var(--success);
+      }
+
+      .status.error {
+        color: var(--error);
+        border-color: var(--error);
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      details {
+        margin-top: 1rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 600;
+        padding: 0.5rem;
+        user-select: none;
+      }
+
+      summary:hover {
+        color: var(--primary);
+      }
+
+      .durations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .duration-input label {
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .duration-input input {
+        width: 100%;
+      }
+
+      audio {
+        width: 100%;
+        margin: 1rem 0;
+        border-radius: 8px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        background: var(--bg);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      th {
+        background: var(--surface);
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text);
+        border-bottom: 2px solid var(--border);
+      }
+
+      td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-muted);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover {
+        background: var(--surface);
+      }
+
+      .script-block {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        overflow: hidden;
+      }
+
+      .script-block summary {
+        padding: 1rem;
+      }
+
+      .script-block pre {
+        padding: 1rem;
+        margin: 0;
+        font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+        font-size: 0.875rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background: var(--bg);
+        color: var(--text-muted);
+        border-top: 1px solid var(--border);
+      }
+
+      .output-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .result-container {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .error-message {
+        color: var(--error);
+        padding: 1rem;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid var(--error);
+        border-radius: 8px;
+        margin-top: 1rem;
+      }
+
+      code {
+        background: rgba(99, 102, 241, 0.2);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+        font-size: 0.9em;
+        color: var(--primary);
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.875rem;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .section {
+          padding: 1.5rem;
+        }
+
+        .flex {
+          flex-direction: column;
+        }
+
+        .card {
+          min-width: 100%;
+        }
+      }
     </style>
   </head>
   <body>
-    <h1>AI Radiostation</h1>
-    <p>Enter a short prompt or transcript. The backend will generate a short transcript (if needed) and TTS audio.</p>
-    <textarea id="prompt" placeholder="Write a short podcast clip prompt...">Generate a short transcript around 100 words that reads like it was clipped from a podcast by excited herpetologists. The hosts names are Dr. Anya and Liam.</textarea>
-    <br />
-    <button id="generate">Generate audio</button>
+    <div class="container">
+      <header>
+        <h1>🎙️ AI Radiostation</h1>
+        <p class="subtitle">Generate AI-powered podcast episodes with Gemini</p>
+      </header>
 
-    <div id="result"></div>
+      <div class="section" id="legacy">
+        <h2>Quick Test</h2>
+        <p class="description">
+          Generate a short audio clip from a text prompt. Uses <code>/generate</code> endpoint with 2 Gemini calls (text + TTS).
+        </p>
+        <label for="prompt">Prompt</label>
+        <textarea 
+          id="prompt" 
+          placeholder="Describe what you want to generate..."
+        >Generate a short transcript around 80 words that reads like it was clipped from a lively biology podcast. The hosts are Dr. Anya and Liam.</textarea>
+        <div style="margin-top: 1rem;">
+          <button id="generate">Generate Audio</button>
+          <span id="result_status" class="status"></span>
+        </div>
+        <div id="result" class="result-container" style="display: none;"></div>
+      </div>
+
+      <div class="section" id="batched">
+        <h2>Full Episode Generator</h2>
+        <p class="description">
+          Create a complete podcast episode with multiple segments. Uses <code>/create_episode_batched</code> with exactly 2 Gemini calls (planning + scripts, then full TTS).
+        </p>
+        
+        <div class="flex">
+          <div class="card">
+            <label for="topics"><strong>Topics</strong> <span style="color: var(--text-muted); font-size: 0.85rem;">(one per line)</span></label>
+            <textarea id="topics" placeholder="Enter topics, one per line">AI ethics
+Indie film picks</textarea>
+          </div>
+          <div class="card">
+            <label for="hosts"><strong>Hosts</strong> <span style="color: var(--text-muted); font-size: 0.85rem;">(Name|persona per line)</span></label>
+            <textarea id="hosts" placeholder="Maya|insightful, warm futurist&#10;Rowan|playful skeptic with dry humor">Maya|insightful, warm futurist
+Rowan|playful skeptic with dry humor</textarea>
+          </div>
+        </div>
+
+        <details style="margin-top: 1rem;">
+          <summary><strong>Advanced Settings</strong></summary>
+          <div class="durations-grid">
+            <div class="duration-input">
+              <label for="dur_cold_open">Cold Open (s)</label>
+              <input id="dur_cold_open" type="number" value="12" min="3" />
+            </div>
+            <div class="duration-input">
+              <label for="dur_topic">Topic (s)</label>
+              <input id="dur_topic" type="number" value="120" min="30" />
+            </div>
+            <div class="duration-input">
+              <label for="dur_banter">Banter (s)</label>
+              <input id="dur_banter" type="number" value="30" min="5" />
+            </div>
+            <div class="duration-input">
+              <label for="dur_ad">Ad (s)</label>
+              <input id="dur_ad" type="number" value="20" min="5" />
+            </div>
+            <div class="duration-input">
+              <label for="dur_outro">Outro (s)</label>
+              <input id="dur_outro" type="number" value="25" min="5" />
+            </div>
+            <div class="duration-input">
+              <label for="dur_total_cap">Total Cap (s)</label>
+              <input id="dur_total_cap" type="number" placeholder="Optional" />
+            </div>
+          </div>
+        </details>
+
+        <label for="style" style="margin-top: 1rem;">Episode Style</label>
+        <input id="style" type="text" value="energetic morning drive" placeholder="e.g., energetic morning drive, calm evening discussion" />
+
+        <div style="margin-top: 1.5rem;">
+          <button id="generate_batched">Generate Full Episode</button>
+          <span id="batched_status" class="status"></span>
+        </div>
+
+        <div id="batched_output" class="output-section" style="display: none;"></div>
+      </div>
+
+      <footer>
+        <p>Built with FastAPI and Google Gemini API</p>
+      </footer>
+    </div>
 
     <script>
-      document.getElementById('generate').addEventListener('click', async () => {
-        const text = document.getElementById('prompt').value;
-        document.getElementById('result').innerText = 'Generating...';
+      // ---------------- Legacy single prompt ----------------
+      const generateBtn = document.getElementById('generate');
+      const promptInput = document.getElementById('prompt');
+      const resultEl = document.getElementById('result');
+      const resultStatus = document.getElementById('result_status');
+
+      generateBtn.addEventListener('click', async () => {
+        const text = promptInput.value.trim();
+        if (!text) {
+          resultStatus.textContent = 'Please enter a prompt';
+          resultStatus.className = 'status error';
+          return;
+        }
+
+        generateBtn.disabled = true;
+        resultStatus.textContent = 'Generating...';
+        resultStatus.className = 'status loading';
+        resultStatus.innerHTML = '<span class="spinner"></span> Generating...';
+        resultEl.style.display = 'none';
+
         try {
           const form = new FormData();
           form.append('text', text);
           const res = await fetch('/generate', { method: 'POST', body: form });
           const body = await res.json();
-          if (!res.ok) throw new Error(body.detail || 'Generation failed');
+          
+          if (!res.ok) {
+            throw new Error(body.detail || 'Generation failed');
+          }
+
           const audioUrl = body.audio_url;
-          document.getElementById('result').innerHTML = `<audio controls src="${audioUrl}"></audio>`;
+          resultEl.innerHTML = `<audio controls src="${audioUrl}"></audio>`;
+          resultEl.style.display = 'block';
+          resultStatus.textContent = '✓ Success';
+          resultStatus.className = 'status success';
         } catch (err) {
-          document.getElementById('result').innerText = 'Error: ' + err.message;
+          resultStatus.textContent = `✗ ${err.message}`;
+          resultStatus.className = 'status error';
+          resultEl.innerHTML = `<div class="error-message">Error: ${err.message}</div>`;
+          resultEl.style.display = 'block';
+        } finally {
+          generateBtn.disabled = false;
+        }
+      });
+
+      // ---------------- Batched endpoint helpers ----------------
+      function parseList(text) {
+        return text.split(/\n+/).map(l => l.trim()).filter(Boolean);
+      }
+
+      function parseHosts(raw) {
+        return parseList(raw).map(line => {
+          const [name, persona] = line.split('|').map(x => (x || '').trim());
+          return { name, persona: persona || '' };
+        }).filter(h => h.name);
+      }
+
+      const generateBatchedBtn = document.getElementById('generate_batched');
+      const batchedStatus = document.getElementById('batched_status');
+      const batchedOutput = document.getElementById('batched_output');
+
+      generateBatchedBtn.addEventListener('click', async () => {
+        const topics = parseList(document.getElementById('topics').value);
+        const hosts = parseHosts(document.getElementById('hosts').value);
+        
+        if (!topics.length) {
+          batchedStatus.textContent = '✗ Need at least one topic';
+          batchedStatus.className = 'status error';
+          return;
+        }
+        
+        if (!hosts.length) {
+          batchedStatus.textContent = '✗ Need at least one host';
+          batchedStatus.className = 'status error';
+          return;
+        }
+
+        generateBatchedBtn.disabled = true;
+        batchedStatus.innerHTML = '<span class="spinner"></span> Planning + scripting (call 1)…';
+        batchedStatus.className = 'status loading';
+        batchedOutput.style.display = 'none';
+        batchedOutput.innerHTML = '';
+
+        const durations = {
+          cold_open: Number(document.getElementById('dur_cold_open').value),
+          topic: Number(document.getElementById('dur_topic').value),
+          banter: Number(document.getElementById('dur_banter').value),
+          ad: Number(document.getElementById('dur_ad').value),
+          outro: Number(document.getElementById('dur_outro').value)
+        };
+
+        const totalCapRaw = document.getElementById('dur_total_cap').value.trim();
+        const payload = { 
+          topics, 
+          hosts, 
+          durations, 
+          style: document.getElementById('style').value 
+        };
+        
+        if (totalCapRaw) {
+          payload.total_cap_seconds = Number(totalCapRaw);
+        }
+
+        try {
+          const res = await fetch('/create_episode_batched', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          let body;
+          try { 
+            body = await res.json(); 
+          } catch(e) { 
+            throw new Error('Invalid JSON response from server'); 
+          }
+
+          if (!res.ok) {
+            throw new Error(body.detail || 'Request failed');
+          }
+
+          batchedStatus.innerHTML = '<span class="spinner"></span> Generating audio (call 2)…';
+          
+          const plan = body.plan || [];
+          const scripts = body.scripts || [];
+          const audioUrl = body.audio_url;
+
+          const planRows = plan.map(p => 
+            `<tr>
+              <td>${p.index}</td>
+              <td><code>${p.type}</code></td>
+              <td>${p.topic || ''}</td>
+              <td>${p.target_seconds}s</td>
+            </tr>`
+          ).join('');
+
+          const scriptBlocks = scripts.map(s => 
+            `<div class="script-block">
+              <details>
+                <summary><strong>[${s.index}]</strong> ${s.type}${s.topic ? ` — ${s.topic}` : ''} <span style="color: var(--text-muted); font-size: 0.85rem;">(~${s.approx_seconds}s)</span></summary>
+                <pre>${s.script}</pre>
+              </details>
+            </div>`
+          ).join('');
+
+          batchedOutput.innerHTML = `
+            <h3>🎵 Episode Audio</h3>
+            <audio controls src="${audioUrl}"></audio>
+            
+            <h3>📋 Episode Plan</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Type</th>
+                  <th>Topic</th>
+                  <th>Target</th>
+                </tr>
+              </thead>
+              <tbody>${planRows}</tbody>
+            </table>
+            
+            <h3>📝 Scripts</h3>
+            ${scriptBlocks}
+            
+            <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">
+              Model calls: ${body.model_calls || 2}
+            </p>
+          `;
+
+          batchedOutput.style.display = 'block';
+          batchedStatus.textContent = '✓ Done — 2 Gemini calls completed';
+          batchedStatus.className = 'status success';
+        } catch (err) {
+          batchedStatus.textContent = `✗ ${err.message}`;
+          batchedStatus.className = 'status error';
+          batchedOutput.innerHTML = `<div class="error-message">Error: ${err.message}</div>`;
+          batchedOutput.style.display = 'block';
+        } finally {
+          generateBatchedBtn.disabled = false;
         }
       });
     </script>
